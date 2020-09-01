@@ -5,6 +5,9 @@ import CountDown from './CountDown';
 import StartBtn from './StartBtn';
 import DisplayWords from './DisplayWords';
 import Form from './Form';
+import ProgressBar from './ProgressBar';
+import ScoreBoard from './ScoreBoard';
+import DisplayGameCode from './DisplayGameCode';
 import socket from '../socketConfig';
 
 const findPlayer = (players) =>
@@ -18,9 +21,16 @@ const TypeRacer = ({ gameState }) => {
   return (
     <div className='text-center'>
       <DisplayWords words={words} player={player} />
+      <ProgressBar
+        players={players}
+        player={player}
+        wordsLength={words.length}
+      />
       <Form isOpen={isOpen} isOver={isOver} gameID={_id} />
       <CountDown />
       <StartBtn player={player} gameID={_id} />
+      {isOpen ? <DisplayGameCode gameID={_id} /> : null}
+      <ScoreBoard players={players} />
     </div>
   );
 };
