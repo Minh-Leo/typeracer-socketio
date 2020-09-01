@@ -85,6 +85,36 @@ io.on('connect', (socket) => {
       }, 1000);
     }
   });
+
+  socket.on('user-input', async ({ userInput, gameID }) => {
+    try {
+      let game = await Game.findById(gameID);
+
+      if (!game.isOpen && !game.isOver) {
+        let player = game.players.find(
+          (player) => player.socketID === socket.id
+        );
+        let word = game.words[player.currentWordIndex];
+
+        if (word === userInput) {
+          player.currentWordIndex++;
+          if (player.currentWordIndex !== game.words.length) {
+            game = await game.save();
+            io.to(gameID).emit('update-game', game);
+          } else {
+            let endTime = new Date().getTime();
+            let { startTime } = game;
+            player.WPM = calculateTime(endTime, startTime, player);
+            game = await game.save();
+            socket.emit('done');
+            io.to(gameID).emit('update-game', game);
+          }
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  });
 });
 
 const calculateTime = (time) => {
